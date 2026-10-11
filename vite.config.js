@@ -4,22 +4,24 @@ import tailwindcss from "@tailwindcss/vite"
 
 // https://vite.dev/config/
 export default defineConfig({
-    build: {
-      outDir: 'dist',
-      assetDir: 'assets',
-      sourcemap: false,
-      minify: 'terser',
-      rollupOptions: {
-        output: {
-          manualChunks: {
-            vendor: ['react', 'react-dom'],
-            icons: ["lucide-react"]
-          }
+  plugins: [react(), tailwindcss()],
+  build: {
+    outDir: 'dist',
+    assetsDir: 'assets',
+    sourcemap: false,
+    minify: 'terser',
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules/lucide-react')) return 'icons'
+          if (id.includes('node_modules/three')) return 'three'
+          if (id.includes('node_modules/react')) return 'vendor'
         }
-    },
-    preview: {
-      port: 3000,
-      open: true,
+      }
     }
+  },
+  preview: {
+    port: 3000,
+    open: true,
   }
 })

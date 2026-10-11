@@ -1,5 +1,11 @@
 @import "tailwindcss";
 
+body {
+  font-family: "Geist", ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
 /* Custom Animations */
 @keyframes fadeIn {
   from {

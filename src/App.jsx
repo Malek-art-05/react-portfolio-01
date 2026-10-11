@@ -1,122 +1,48 @@
-import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import './App.css'
+import { useScrollToTop } from "./hooks/useScrollToTop";
+import Lanyard from "./components/Lanyard";
+import cardFront from "./assets/card-front.jpg";
+import cardBack from "./assets/card-back.jpg";
+import Hero from "./components/Hero";
+import About from "./components/About";
+import Education from "./components/Education";
+import Skills from "./components/Skills";
+import Projects from "./components/Projects";
+import Contact from "./components/Contact";
+import Footer from "./components/Footer";
+import ScrollToTop from "./components/ScrollToTop";
 
-function App() {
-  const [count, setCount] = useState(0)
+const App = () => {
+  const showScrollTop = useScrollToTop();
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    <div className="relative min-h-screen text-black">
+      {/* Page background: the hero's gradient + grid, fixed so every section shares it */}
+      <div className="fixed inset-0 -z-10 bg-gradient-to-br from-white via-gray-50 to-gray-100">
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(0,0,0,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(0,0,0,0.02)_1px,transparent_1px)] bg-[size:50px_50px]"></div>
+      </div>
 
-      <div className="ticks"></div>
+      {/* ID card lanyard, hanging at the top right beside the content column (wide screens only,
+          so it never covers the text). The container spans the full width of the first screen
+          so the card never gets clipped when it swings.
+          - anchor={0.82}: strap hangs 82% of the way across the page
+          - cardHeight={360}: CARD SCALE, card is always 360px tall regardless of window size
+          - finish="satin": less glare than the default "glossy" */}
+      <div className="hidden xl:block absolute inset-x-0 top-0 h-screen z-20">
+        <Lanyard frontImage={cardFront} backImage={cardBack} anchor={0.82} cardHeight={360} finish="satin" />
+      </div>
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+      <main className="relative z-10 max-w-2xl mx-auto px-6 pt-24 pb-12 sm:pt-36 sm:pb-24 flex flex-col gap-14">
+        <Hero />
+        <About />
+        <Education />
+        <Skills />
+        <Projects />
+        <Contact />
+      </main>
+      <Footer />
+      <ScrollToTop showScrollTop={showScrollTop} />
+    </div>
+  );
+};
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
-}
-
-export default App
+export default App;

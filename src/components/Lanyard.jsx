@@ -728,6 +728,9 @@ const Lanyard = ({
   breeze = 0.5,
   interactive = true,
   intro = true,
+  // Use with a fixed, screen-sized container: the strap's anchor scrolls with the page like normal
+  // content, but the card can be dragged anywhere on screen without being clipped.
+  scrollWithPage = false,
   className = '',
   style
 }) => {
@@ -756,7 +759,8 @@ const Lanyard = ({
     elasticity,
     breeze,
     interactive,
-    intro
+    intro,
+    scrollWithPage
   };
 
   // Sync props into the ref after render (runs before the setup effect below on mount).
@@ -932,6 +936,10 @@ const Lanyard = ({
       start();
     };
 
+    // World units per screen pixel, and how far (in world units) the lanyard is shifted for scrolling.
+    let unitsPerPixel = 0;
+    let scrollShift = 0;
+
     const frameView = () => {
       const s = settingsRef.current;
       const aspect = view.width / view.height;
@@ -964,7 +972,9 @@ const Lanyard = ({
       const anchorY = viewHeight / 2 + 0.2;
       const cardTop = viewHeight / 2 - viewHeight * mix(0.12, 0.42, clamp(s.strapLength, 0, 1));
       const hangTop = cardTop + (layout.hangY - layout.height / 2);
-      sim.anchor.set(anchorX, anchorY, 0);
+      unitsPerPixel = viewHeight / view.height;
+      scrollShift = s.scrollWithPage ? window.scrollY * unitsPerPixel : 0;
+      sim.anchor.set(anchorX, anchorY + scrollShift, 0);
       configureSimulation(sim, layout, anchorY - hangTop);
       sim.nodes[0].copy(sim.anchor);
       sim.previous[0].copy(sim.anchor);
@@ -988,7 +998,7 @@ const Lanyard = ({
         ring.position.set(0, layout.ringY, 0);
         applied.framingKey = '';
       }
-      const framingKey = `${layoutKey}|${s.size}|${s.cardHeight}|${s.anchor}|${s.strapLength}|${view.width}|${view.height}`;
+      const framingKey = `${layoutKey}|${s.size}|${s.cardHeight}|${s.anchor}|${s.strapLength}|${s.scrollWithPage}|${view.width}|${view.height}`;
       if (framingKey !== applied.framingKey) {
         frameView();
         if (!placed) {
@@ -1279,6 +1289,27 @@ const Lanyard = ({
     window.addEventListener('pointercancel', onPointerUp);
     window.addEventListener('touchstart', onTouchStart, { passive: false });
 
+    // Scrolling down moves the whole lanyard up by the same amount, so it scrolls like page content.
+    const onScroll = () => {
+      if (!settingsRef.current.scrollWithPage || !unitsPerPixel) return;
+      const shift = window.scrollY * unitsPerPixel - scrollShift;
+      if (!shift) return;
+      scrollShift += shift;
+      sim.anchor.y += shift;
+      for (let i = 0; i <= JOINTS; i++) {
+        sim.nodes[i].y += shift;
+        sim.previous[i].y += shift;
+      }
+      sim.body.position.y += shift;
+      sim.body.previous.y += shift;
+      if (sim.grab) {
+        sim.grab.from.y += shift;
+        sim.grab.target.y += shift;
+      }
+      if (!raf) render();
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+
     const resize = () => {
       view.width = Math.max(1, container.clientWidth);
       view.height = Math.max(1, container.clientHeight);
@@ -1311,6 +1342,7 @@ const Lanyard = ({
       resizeObserver.disconnect();
       intersectionObserver.disconnect();
       document.removeEventListener('visibilitychange', onVisibility);
+      window.removeEventListener('scroll', onScroll);
       window.removeEventListener('pointerdown', onPointerDown);
       window.removeEventListener('pointermove', onPointerMove);
       window.removeEventListener('pointerup', onPointerUp);

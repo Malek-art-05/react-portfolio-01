@@ -22,13 +22,13 @@ const App = () => {
       </div>
 
       {/* ID card lanyard, hanging at the top right beside the content column (wide screens only,
-          so it never covers the text). The container spans the full width of the first screen
-          so the card never gets clipped when it swings.
+          so it never covers the text). The container is fixed to the whole screen so the card is
+          never clipped, and scrollWithPage makes it scroll away with the page like normal content.
           - anchor={0.82}: strap hangs 82% of the way across the page
           - cardHeight={360}: CARD SCALE, card is always 360px tall regardless of window size
           - finish="satin": less glare than the default "glossy" */}
-      <div className="hidden xl:block absolute inset-x-0 top-0 h-screen z-20">
-        <Lanyard frontImage={cardFront} backImage={cardBack} anchor={0.82} cardHeight={360} finish="satin" />
+      <div className="hidden xl:block fixed inset-0 z-20">
+        <Lanyard frontImage={cardFront} backImage={cardBack} anchor={0.82} cardHeight={360} finish="satin" scrollWithPage />
       </div>
 
       <main className="relative z-10 max-w-2xl mx-auto px-6 pt-24 pb-12 sm:pt-36 sm:pb-24 flex flex-col gap-14">
